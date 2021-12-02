@@ -1,0 +1,86 @@
+i=i+2
+if i>360
+  i=0
+endif
+
+ScanRadar(i)
+move=.5
+;------------------------
+ dist#=EntityDistance(corpus%,center%)
+if dist>1900 
+  dc=100
+endif
+;--------------------------
+if enemy<>null
+  if target%=null  
+   target%=enemy 
+  else
+     if EntityDistance(corpus%,enemy)<dist_t#
+       target%=enemy
+      endif
+  endif
+endif
+;-------------------------
+if target<>null
+  dist_t=EntityDistance(corpus%,target)
+
+   turnturret=deltayaw(turret,target)
+   if abs(turnturret)<10
+     turngun=deltapitch(gun,target)-dist_t#/800
+     if abs(turngun)<2 
+       fire1=1
+     endif
+   endif
+   if rockets=1
+     if  (dist_t>500)or((dist_t>980)and (rockets=1))
+         TurnCorpus=deltayaw(corpus%,target)
+     endif
+   endif
+
+   if dist_t<1000
+     fire2=1
+   endif
+endif
+;-------------------------------
+if bulletbonus<>null
+  if bul_b%=null  
+   bul_b%=bulletbonus 
+  endif
+endif
+;-------------------------------
+if bullets=0
+if bul_b%<>null 
+  TurnCorpus=deltayaw(corpus%,bul_b%)
+endif
+endif
+;-------------------------------
+if rocketbonus<>null
+  if roc_b%=null  
+   roc_b%=rocketbonus 
+  endif
+endif
+;-------------------------------
+if rockets=0
+if roc_b%<>null 
+  TurnCorpus=deltayaw(corpus%,roc_b%)
+endif
+endif
+;-------------------------------
+if RepairBonus<>null
+  if Rep_b%=null  
+   Rep_b%=RepairBonus 
+  endif
+endif
+;-------------------------------
+if Mylives<5
+if Rep_b%<>null 
+  TurnCorpus=deltayaw(corpus%,Rep_b%)
+endif
+endif
+
+;--------------------------------
+if dc>0
+  dc=dc-1
+  move=.5
+  TurnCorpus=deltayaw(corpus,center)
+endif

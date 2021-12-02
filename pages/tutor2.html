@@ -1,0 +1,174 @@
+<html>
+<head>
+<title>CleverBots::Туториал по написанию ИИ. Добавляем в модель поведения бота.</title>
+</head>
+<style>
+b.m { color:#FFFF00; font-weight:normal;}
+b.c { color:#FFFFFF; font-weight:normal;}
+b.r { color:#FFFFFF;}
+table {border-width: 2; border-style:solid; border-color:#AAAA00; background-color:#225588;}
+table.desc { border-style:none; background-color:#FFFFFF; margin-left:30; }
+</style>
+<body>
+<h2>Туториал по написанию ИИ. Добавляем в модель поведения бота.</h2>
+
+Сегодня мы рассмотрим следующие шаги :<br>
+- Проверку, наведена ли пушка на цель;<br>
+- "Объезд" препятствий;<br>
+- Возврат с края карты к центру.<br>
+<br>
+Итак, учитывая достижения <a href='tutor1.html'>предыдущего туториала</a> мы получаем :<br>
+<b>1.</b> если нет цели, то сканируем пространство вокруг;<br>
+<b>2.</b> если радар засек противника, то заносим его в цель;<br>
+<b>3.</b> едем вперед, поворачиваемся рандомно;<br>
+<b>4.</b> если цель есть, и пушка наведена  то стреляем в нее;<br>
+<b>5.</b> объезжаем препятствия;<br>
+<b>6.</b> Если удаляемся на край карты, то возвращаемся к центру.<br>
+<br>
+Теперь рассмотрим новые шаги отдельно :<br>
+
+<h3>Шаг 4 : стреляем</h3>
+Этот шаг был рассмотрен в предыдущем туториале, сейчас мы его дополним. Сделаем так, чтобы он стрелял только тогда, когда пушка направлена на цель.<br><br>
+<table width=98% align=center><tr><td>
+<b class=r>if</b><b class=c> target <> null</b><b class=m> ; если цель существует</b><br>
+&nbsp; &nbsp; <b class=c>turnTurret = </b><b class=r>DeltaYaw</b> <b class=c>( turret, target )</b><b class=m> ; поворачиваем башню</b><br>
+&nbsp; &nbsp; <b class=r>If</b><b class=c> (</b><b class=r> Abs</b><b class=c> ( turnTurret ) < 5 )</b><b class=m>  ; если башня наведена (разница угла меньше 5 град)</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>turnGun = </b><b class=r>DeltaPitch</b><b class=c> ( gun, target )</b><b class=m> ; поворачиваем ствол</b><br>
+&nbsp; &nbsp; <b class=r>EndIf</b><br>
+&nbsp; &nbsp; <b class=r>If</b><b class=c> ( </b><b class=r>Abs </b><b class=c>( turnGun ) < 5 )</b><b class=m> ; если ствол наведен (разница угла меньше 5 град)</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>fire = 1</b><b class=m> ; пли!!!</b><br>
+&nbsp; &nbsp; <b class=r>EndIf</b><br>
+<b class=r>End If</b><br>
+</td></tr></table>
+<br>
+<table class=desc border=1>
+<tr><td colspan=2 align=center><u><b>Используемые встроенные функции</b></u></td></tr>
+<tr><td width=220 align=center><b>Abs</b> ( value# ) </td><td> возвращает модуль числа.</td></tr>
+</table>
+<br><br><br>
+<h3>Шаг 5 : объезжаем препятствия</h3>
+
+Мы можем использовать радар или переменную столкновения <i>CollidedStruct</i>. В этом туторе используем переменную <i>CollidedStruct</i>.<br>
+<br>
+<table width=98% align=center><tr><td>
+<b class=r>If</b> <b class=c>CollidedStruct <> Null</b><b class=m> ; если есть столкновение</b><br>
+&nbsp; &nbsp; <b class=c>timeStruct = 100</b><b class=m> ; заводим переменную времени выполнения объезда</b><br>
+<b class=r>EndIf</b><br>
+<br>
+<b class=r>If</b><b class=c> timeStruct > 0</b><b class=m> ; если объезд еще не выполнен</b><br>
+&nbsp; &nbsp; <b class=c>timeStruct = timeStruct - 1</b><b class=m> ; уменьшаем таймер</b><br>
+&nbsp; &nbsp; <b class=r>If</b><b class=c> timeStruct > 50</b><b class=m> ; если первая фаза объезда</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>Move = -1</b><b class=m> ; едем назад</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>TurnCorpus = -1</b><b class=m> ; колеса влево</b><br>
+&nbsp; &nbsp; <b class=r>Else</b><b class=m> ; если вторая фаза объезда</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>Move = 1</b><b class=m> ; едем вперед</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>TurnCorpus = 1</b><b class=m> ; колеса вправо</b><br>
+&nbsp; &nbsp; <b class=r>EndIf</b><br>
+<b class=r>EndIf</b><br>
+</td></tr></table><br>
+<table class=desc border=1>
+<tr><td colspan=2 align=center><u><b>Используемые встроенные переменные</b></u></td></tr>
+<tr><td width=220 align=center><b>CollidedStruct</b>%</td><td> содержит указатель на строение, с которым произошло столкновение. Если последнего нет, то содержит Null.</td></tr>
+</table>
+<br><br><br>
+<h3>Шаг 6 : возвращаемся к центру уровня при большом удалении от него</h3>
+В центре уровня находится виртуальная точка с именем <i>Center</i>. Вот ее мы и будем использовать.
+Действуем по тому-же принципу, как и в предыдущем шаге :<br>
+<br>
+<table width=98% align=center><tr><td>
+<b class=c>dist# = </b><b class=r>EntityDistance</b><b class=c> ( Corpus, center )</b><b class=m> ; получаем дистанцию от машины до центра уровня</b><br>
+<b class=r>If</b><b class=c> dist > 1500</b><b class=m> ; если дистанция больше 150 метров. (размер уровня 450х450 метров, масштаб 10:1)</b><br>
+&nbsp; &nbsp; <b class=c>timeLevel# = 200</b><b class=m> ; запускаем таймер поворота</b><br>
+<b class=r>EndIf</b><br>
+<br>
+<b class=r>If</b><b class=c> timeLevel > 0</b><b class=m> ; если поворот еще не выполнен</b><br>
+&nbsp; &nbsp; <b class=c>timeLevel = timeLevel - 1</b><b class=m> ; уменьшаем таймер</b><br>
+&nbsp; &nbsp; <b class=c>TurnCorpus =</b><b class=r> DeltaYaw</b><b class=c> ( corpus, center )</b><b class=m> ; поворачиваем на центр</b><br>
+&nbsp; &nbsp; <b class=r>If Abs</b><b class=c> ( TurnCorpus ) < 40</b><b class=m> ; если повернулись в сторону центра</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>move = 1</b><b class=m> ; едем вперед на полной скорости</b><br>
+&nbsp; &nbsp; <b class=r>Else</b><b class=m> ; если еще не повернулись в сторону центра</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>move = 0.5</b><b class=m> ; едем в пол скорости</b><br>
+&nbsp; &nbsp; <b class=r>EndIf</b><br>
+&nbsp; &nbsp; <b class=r>If Abs <b class=c>( TurnCorpus ) < 5</b><b class=m> ; если поворот выполнен</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>timeLevel = 0</b><b class=m> ; обнуляем таймер поворота на центр</b><br>
+&nbsp; &nbsp; <b class=r>EndIf</b><br>
+<b class=r>EndIf</b><br>
+</td></tr></table><br>
+<table class=desc border=1>
+<tr><td colspan=2 align=center><u><b>Используемые встроенные функции</b></u></td></tr>
+<tr><td width=220 align=center><b>EntityDistance</b> ( ent1%, ent2% ) </td><td> возвращает расстояние между объектами.</td></tr>
+<tr><td colspan=2 align=center><u><b>Используемые встроенные переменные</b></u></td></tr>
+<tr><td width=220 align=center><b>Center</b>%</td><td> содержит указатель на геометрический центр уровня.</td></tr>
+<tr><td width=220 align=center><b>Corpus</b>%</td><td> содержит указатель на машину ( внимание! следует различать указатели на машину, на башню и на ствол ).</td></tr>
+</table>
+<br><br><br>
+
+<h3>Исходник.</h3>
+И вот наконец плод наших трудов, вполне приличный ИИ ( дополненный и переработанный с <a href='tutor1.html'>первого туториала</a> )<br>
+<br>
+<table width=98% align=center><tr><td>
+<b class=c>angle = angle + 2</b> <b class=m>; увеличиваем угол</b><br>
+<b class=r>PositionRadar</b> <b class=c>( caseX, caseY, caseZ )</b> <b class=m> ; позиционируем радар на место машины</b><br>
+<b class=r>RotateRadar</b> <b class=c>(0, angle, 0)</b> <b class=m> ; поворачиваем радар</b><br>
+<b class=c>ent% = </b><b class=r>ScanRadar</b><b class=c> ( 1000 )</b> <b class=m>; получаем хендл ближайшего объекта на который "смотрит" радар<br>
+<br>
+<b class=r>If</b> <b class=c>( target% = null )</b> </b><b class=r>And</b> <b class=c>( </b><b class=r>TypeEntity</b><b class=c> ( ent ) = 1) <b class=m> ; если цели нет и засеченный объект является противником<br>
+&nbsp; &nbsp; <b class=c>target = ent</b> <b class=m>; заносим объект в цель</b><br>
+<b class=r>EndIf</b><br>
+<br>
+<b class=c>move = 1</b> <b class=m>; едем вперед</b><br>
+<b class=c>timer = timer + 1</b><b class=m> ; прибавляем к счетчику</b><br>
+<b class=r>If</b> <b class=c>timer > 20</b><b class=m> ; если прошло некоторое время</b><br>
+&nbsp; &nbsp; <b class=c>turnCorpus = </b><b class=r>Rnd</b><b class=c> ( -4, 4 )</b><b class=m> ; поворачиваемся на случайный угол</b><br>
+&nbsp; &nbsp; <b class=c>timer = </b><b class=r>Rnd </b><b class=c>( 0, 10 )</b> <b class=m>; переустанавливаем счетчик</b><br>
+<b class=r>End If</b><br>
+<br>
+<b class=r>if</b><b class=c> target <> null</b><b class=m> ; если цель существует</b><br>
+&nbsp; &nbsp; <b class=c>turnTurret = </b><b class=r>DeltaYaw</b> <b class=c>( turret, target )</b><b class=m> ; поворачиваем башню</b><br>
+&nbsp; &nbsp; <b class=r>If</b><b class=c> (</b><b class=r> Abs</b><b class=c> ( turnTurret ) < 5 )</b><b class=m>  ; если башня наведена (разница угла меньше 5 град)</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>turnGun = </b><b class=r>DeltaPitch</b><b class=c> ( gun, target )</b><b class=m> ; поворачиваем ствол</b><br>
+&nbsp; &nbsp; <b class=r>EndIf</b><br>
+&nbsp; &nbsp; <b class=r>If</b><b class=c> ( </b><b class=r>Abs </b><b class=c>( turnGun ) < 5 )</b><b class=m> ; если ствол наведен (разница угла меньше 5 град)</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>fire = 1</b><b class=m> ; пли!!!</b><br>
+&nbsp; &nbsp; <b class=r>EndIf</b><br>
+<b class=r>End If</b><br>
+<br>
+<b class=r>If</b> <b class=c>CollidedStruct <> Null</b><b class=m> ; если есть столкновение</b><br>
+&nbsp; &nbsp; <b class=c>timeStruct = 100</b><b class=m> ; заводим переменную времени выполнения объезда</b><br>
+<b class=r>EndIf</b><br>
+<br>
+<b class=r>If</b><b class=c> timeStruct > 0</b><b class=m> ; если объезд еще не выполнен</b><br>
+&nbsp; &nbsp; <b class=c>timeStruct = timeStruct - 1</b><b class=m> ; уменьшаем таймер</b><br>
+&nbsp; &nbsp; <b class=r>If</b><b class=c> timeStruct > 50</b><b class=m> ; если первая фаза объезда</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>Move = -1</b><b class=m> ; едем назад</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>TurnCorpus = -1</b><b class=m> ; колеса влево</b><br>
+&nbsp; &nbsp; <b class=r>Else</b><b class=m> ; если вторая фаза объезда</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>Move = 1</b><b class=m> ; едем вперед</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>TurnCorpus = 1</b><b class=m> ; колеса вправо</b><br>
+&nbsp; &nbsp; <b class=r>EndIf</b><br>
+<b class=r>EndIf</b><br>
+<br>
+<b class=c>dist# = </b><b class=r>EntityDistance</b><b class=c> ( Corpus, center )</b><b class=m> ; получаем дистанцию от машины до центра уровня</b><br>
+<b class=r>If</b><b class=c> dist > 1500</b><b class=m> ; если дистанция больше 150 метров. (размер уровня 450х450 метров, масштаб 10:1)</b><br>
+&nbsp; &nbsp; <b class=c>timeLevel# = 200</b><b class=m> ; запускаем таймер поворота</b><br>
+<b class=r>EndIf</b><br>
+<br>
+<b class=r>If</b><b class=c> timeLevel > 0</b><b class=m> ; если поворот еще не выполнен</b><br>
+&nbsp; &nbsp; <b class=c>timeLevel = timeLevel - 1</b><b class=m> ; уменьшаем таймер</b><br>
+&nbsp; &nbsp; <b class=c>TurnCorpus =</b><b class=r> DeltaYaw</b><b class=c> ( corpus, center )</b><b class=m> ; поворачиваем на центр</b><br>
+&nbsp; &nbsp; <b class=r>If Abs</b><b class=c> ( TurnCorpus ) < 40</b><b class=m> ; если повернулись в сторону центра</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>move = 1</b><b class=m> ; едем вперед на полной скорости</b><br>
+&nbsp; &nbsp; <b class=r>Else</b><b class=m> ; если еще не повернулись в сторону центра</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>move = 0.5</b><b class=m> ; едем в пол скорости</b><br>
+&nbsp; &nbsp; <b class=r>EndIf</b><br>
+&nbsp; &nbsp; <b class=r>If Abs <b class=c>( TurnCorpus ) < 5</b><b class=m> ; если поворот выполнен</b><br>
+&nbsp; &nbsp; &nbsp; &nbsp; <b class=c>timeLevel = 0</b><b class=m> ; обнуляем таймер поворота на центр</b><br>
+&nbsp; &nbsp; <b class=r>EndIf</b><br>
+<b class=r>EndIf</b><br>
+</td></tr></table><br>
+<br><br><br>
+<h3>Планы.</h3>
+В следующем туторе я покажу другие способы использования радара.<br>
+<b style='margin-left:100'>Удачи!</b><br><Br>
+</body>
+</html>

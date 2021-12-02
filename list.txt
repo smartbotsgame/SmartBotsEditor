@@ -1,0 +1,58 @@
+scripts/2.ai
+;[command] [code] [in] [out] [format]
+count of variables = 38
+1) move
+2) turncorpus
+3) turnturret
+4) turngun
+5) fire1
+6) fire2
+7) mylives
+8) bullets
+9) rockets
+10) typegame
+11) howmanybots
+12) damageyaw
+13) frend
+14) enemy
+15) bulletbonus
+16) rocketbonus
+17) repairbonus
+18) obstacle
+19) wall
+20) corpusx
+21) corpusy
+22) corpusz
+23) corpuspitch
+24) corpusyaw
+25) corpusroll
+26) turretyaw
+27) gunpitch
+28) collided
+29) collidedwalls
+30) collidedobstacle
+31) radar
+32) turret
+33) gun
+34) corpus
+35) center
+36) null
+37) i
+38) union
+
+model = hammer
+name = 2
+
+20 commands
+[0002]  [002]   push var I
+[0004]  [100]   SCANRADAR
+[0005]  [002]   push var FREND
+[0007]  [002]   push var NULL
+[0009]  [011]   <>
+[0010]  [002]   push var UNION
+[0012]  [002]   push var NULL
+[0014]  [010]   =
+[0015]  [024]   AND
+[0016]  [004]   If (false goto line  N 20)
+[0018]  [002]   push var FREND
+[0020]  [001]   pop var UNION

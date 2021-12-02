@@ -1,0 +1,135 @@
+<html>
+<head>
+<title>CleverBots::Туториал по написанию ИИ. Начало.</title>
+</head>
+<style>
+b.m { color:#FFFF00; font-weight:normal;}
+b.c { color:#FFFFFF; font-weight:normal;}
+b.r { color:#FFFFFF;}
+table {border-width: 2; border-style:solid; border-color:#AAAA00; background-color:#225588;}
+table.desc { border-style:none; background-color:#FFFFFF; margin-left:30; }
+</style>
+<body>
+<h2>Туториал по написанию ИИ. Начало.</h2>
+Для своего бота я придумал следующую модель :<br>
+<b>1.</b> если нет цели, то сканируем пространство вокруг;<br>
+<b>2.</b> если радар засек противника, то заносим его в цель;<br>
+<b>3.</b> едем вперед, поворачиваемся рандомно;<br>
+<b>4.</b> если цель есть, то стреляем в нее.<br>
+<br>
+Теперь рассмотрим каждый шаг отдельно.<br>
+
+<h3>Шаг №1 : ищем цель.</h3>
+Для того, чтобы найти противника, я буду позиционировать радар в положение машины, поворачивать радар со скоростью 2 и на каждом проходе сканировать пространство.<br>
+<br>
+<table width=98% align=center><tr><td>
+<b class=c>angle = angle + 2</b> <b class=m>; увеличиваем угол</b><br>
+<b class=r>PositionRadar</b> <b class=c>( caseX, caseY, caseZ )</b> <b class=m> ; позиционируем радар на место машины</b><br>
+<b class=r>RotateRadar</b> <b class=c>(0, angle, 0)</b> <b class=m> ; поворачиваем радар</b><br>
+<b class=c>ent% = </b><b class=r>ScanRadar</b><b class=c> ( 1000 )</b> <b class=m>; получаем хендл ближайшего объекта на который "смотрит" радар<br>
+</td></tr></table>
+<br>
+<table class=desc border=1>
+<tr><td colspan=2 align=center><u><b>Используемые встроенные функции</b></u></td></tr>
+<tr><td width=220 align=center><b>PositionRadar</b> ( x#, y#, z# ) </td><td> позиционирует радар в пространстве.</td></tr>
+<tr><td align=center><b>RotateRadar</b> (  pitch#, yaw#, roll# ) </td><td> поворачивает радар на заданные углы.</td></tr>
+<tr><td colspan=2 align=center><u><b>Используемые встроенные переменные</b></u></td></tr>
+<tr><td width=220 align=center><b>CaseX</b>#, <b>CaseY</b>#, <b>CaseZ</b>#</td><td> координаты корпуса машины.</td></tr>
+</table>
+<br><br><br>
+
+<h3>Шаг №2 : проверяем засеченный объект.</h3>
+Здесь все тривиально : если у нас уже есть цель, то игнорируем объект, иначе заносим его в цель, если он является противником.<br><br>
+<table width=98% align=center><tr><td>
+<b class=r>If</b> <b class=c>( target% = null )</b> </b><b class=r>And</b> <b class=c>( </b><b class=r>TypeEntity</b><b class=c> ( ent ) = 1) <b class=m> ; если цели нет и засеченный объект является противником<br>
+&nbsp; &nbsp; <b class=c>target = ent</b> <b class=m>; заносим объект в цель</b><br>
+<b class=r>EndIf</b><br>
+</td></tr></table>
+<br>
+<table class=desc border=1>
+<tr><td colspan=2 align=center><u><b>Используемые встроенные функции</b></u></td></tr>
+<tr><td width=220 align=center><b>TypeEntity</b> ( entity% ) </td><td> возращает тип объекта :<br>
+1 - враг;<br>
+2 - союзник;<br>
+3 - земля;<br>
+4 - строение;<br>
+5 - дерево.</td></tr>
+<tr><td colspan=2 align=center><u><b>Используемые встроенные переменные</b></u></td></tr>
+<tr><td width=220 align=center><b>null</b>%</td><td> нулевой объект, т.е. несуществующий.</td></tr>
+</table>
+<br><br><br>
+
+<h3>Шаг №3 : едем.</h3>
+Здесь все тоже очень легко, даже сказать нечего.<br><br>
+<table width=98% align=center><tr><td>
+<b class=c>move = 1</b> <b class=m>; едем вперед</b><br>
+<b class=c>timer = timer + 1</b><b class=m> ; прибавляем к счетчику</b><br>
+<b class=r>If</b> <b class=c>timer > 20</b><b class=m> ; если прошло некоторое время</b><br>
+&nbsp; &nbsp; <b class=c>turnCorpus = </b><b class=r>Rnd</b><b class=c> ( -4, 4 )</b><b class=m> ; поворачиваемся на случайный угол</b><br>
+&nbsp; &nbsp; <b class=c>timer = </b><b class=r>Rnd </b><b class=c>( 0, 10 )</b> <b class=m>; переустанавливаем счетчик</b><br>
+<b class=r>End If</b>
+</td></tr></table><br>
+<table class=desc border=1>
+<tr><td colspan=2 align=center><u><b>Используемые встроенные функции</b></u></td></tr>
+<tr><td width=220 align=center><b>Rnd</b> ( start#, end# ) </td><td> возвращает случайное число в пределах [start, end]</td></tr>
+<tr><td colspan=2 align=center><u><b>Используемые встроенные переменные</b></u></td></tr>
+<tr><td width=220 align=center><b>Move</b>#</td><td> задать скорость движения (в долях).</td></tr>
+<tr><td width=220 align=center><b>TurnCorpus</b>#</td><td> задать угол поворота машины (в долях).</td></tr>
+</table>
+<br><br><br>
+
+<h3>Шаг №4 : стреляем.</h3>
+И снова все достаточно просто.<br><br>
+<table width=98% align=center><tr><td>
+<b class=r>if</b><b class=c> target<>null</b><b class=m> ; если цель существует</b><br>
+&nbsp; &nbsp; <b class=c>turnTurret = </b><b class=r>DeltaYaw</b><b class=c> ( turret, target )</b><b class=m> ; поворачиваем башню</b><br>
+&nbsp; &nbsp; <b class=c>turnGun = </b><b class=r>DeltaPitch</b><b class=c> ( gun, target )</b><b class=m> ; поворачиваем ствол</b><br>
+&nbsp; &nbsp; <b class=c>fire = 1</b><b class=m> ; пли!!!</b><br>
+<b class=r>End If</b>
+</td></tr></table><br>
+<table class=desc border=1>
+<tr><td colspan=2 align=center><u><b>Используемые встроенные функции</b></u></td></tr>
+<tr><td width=220 align=center><b>DeltaYaw</b> ( src_entity%, dest_entity% ) </td><td> возвращает угол на который надо повернуть объект src_entity вокруг оси Y, чтобы направить его на dest_entity.</td></tr>
+<tr><td width=220 align=center><b>DeltaPitch</b> ( src_entity%, dest_entity% ) </td><td> возвращает угол на который надо повернуть объект src_entity вокруг оси X, чтобы направить его на dest_entity.</td></tr>
+<tr><td colspan=2 align=center><u><b>Используемые встроенные переменные</b></u></td></tr>
+<tr><td width=220 align=center><b>TurnTurret</b>#</td><td> задать угол поворота башни (вправо-влево) (в долях).</td></tr>
+<tr><td width=220 align=center><b>TurnGun</b>#</td><td> задать угол поворота ствола ( вверх-вниз) (в долях).</td></tr>
+<tr><td width=220 align=center><b>Fire</b>#</td><td> команда на стрельбу ( 1 - огонь!, 0 - не стрелять ).</td></tr>
+<tr><td width=220 align=center><b>Turret</b>%</td><td> модель башни.</td></tr>
+<tr><td width=220 align=center><b>Gun</b>%</td><td> модель ствола.</td></tr>
+</table>
+<br><br><br>
+
+<h3>Исходник.</h3>
+И вот наконец плод наших трудов, вполне работоспособный ИИ :<br><Br>
+<table width=98% align=center><tr><td>
+<b class=c>angle = angle + 2</b> <b class=m>; увеличиваем угол</b><br>
+<b class=r>PositionRadar</b> <b class=c>( caseX, caseY, caseZ )</b> <b class=m> ; позиционируем радар на место машины</b><br>
+<b class=r>RotateRadar</b> <b class=c>(0, angle, 0)</b> <b class=m> ; поворачиваем радар</b><br>
+<b class=c>ent% = </b><b class=r>ScanRadar</b><b class=c> ( 1000 )</b> <b class=m>; получаем хендл ближайшего объекта на который "смотрит" радар<br>
+<br>
+<b class=r>If</b> <b class=c>( target% = null )</b> </b><b class=r>And</b> <b class=c>( </b><b class=r>TypeEntity</b><b class=c> ( ent ) = 1) <b class=m> ; если цели нет и засеченный объект является противником<br>
+&nbsp; &nbsp; <b class=c>target = ent</b> <b class=m>; заносим объект в цель</b><br>
+<b class=r>EndIf</b><br>
+<br>
+<b class=c>move = 1</b> <b class=m>; едем вперед</b><br>
+<b class=c>timer = timer + 1</b><b class=m> ; прибавляем к счетчику</b><br>
+<b class=r>If</b> <b class=c>timer > 20</b><b class=m> ; если прошло некоторое время</b><br>
+&nbsp; &nbsp; <b class=c>turnCorpus = </b><b class=r>Rnd</b><b class=c> ( -4, 4 )</b><b class=m> ; поворачиваемся на случайный угол</b><br>
+&nbsp; &nbsp; <b class=c>timer = </b><b class=r>Rnd </b><b class=c>( 0, 10 )</b> <b class=m>; переустанавливаем счетчик</b><br>
+<b class=r>End If</b><br>
+<br>
+<b class=r>if</b><b class=c> target<>null</b><b class=m> ; если цель существует</b><br>
+&nbsp; &nbsp; <b class=c>turnTurret = </b><b class=r>DeltaYaw</b><b class=c> ( turret, target )</b><b class=m> ; поворачиваем башню</b><br>
+&nbsp; &nbsp; <b class=c>turnGun = </b><b class=r>DeltaPitch</b><b class=c> ( gun, target )</b><b class=m> ; поворачиваем ствол</b><br>
+&nbsp; &nbsp; <b class=c>fire = 1</b><b class=m> ; пли!!!</b><br>
+<b class=r>End If</b>
+</td></tr></table><br>
+Конечно вы заметите, что уперевшись в стену, бот не сможет ничего сделать. :) Вы можете исправить это сами или дождаться следующего туториала.
+<br><br><br>
+
+<h3>Планы.</h3>
+В <a href='tutor2.html'>следующем туториале</a> я покажу один из способов обхода препятсвий ( здания, ограничивающая стена ), возможно, что-нибудь еще .<br>
+<b style='margin-left:100'>Удачи!</b><br><Br>
+</body>
+</html>
